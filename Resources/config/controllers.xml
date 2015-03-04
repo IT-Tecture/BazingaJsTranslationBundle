@@ -9,14 +9,15 @@
 
     <services>
         <service id="bazinga.jstranslation.controller" class="%bazinga.jstranslation.controller.class%">
-            <argument type="service" id="translator" />
-            <argument type="service" id="templating" />
-            <argument type="service" id="bazinga.jstranslation.translation_finder" />
-            <argument>%kernel.cache_dir%/bazinga-js-translation</argument>
-            <argument>%kernel.debug%</argument>
-            <argument></argument> <!-- fallback (locale) -->
-            <argument></argument> <!-- default domain    -->
-            <argument></argument> <!-- http cache time -->
+            <argument index="0" type="service" id="translator" />
+            <argument index="1" type="service" id="templating" />
+            <argument index="2" type="service" id="bazinga.jstranslation.translation_finder" />
+            <argument index="3" type="service" id="bazinga.jstranslation.locale_request_filter" />
+            <argument index="4">%kernel.cache_dir%/bazinga-js-translation</argument>
+            <argument index="5">%kernel.debug%</argument>
+            <argument index="6"></argument> <!-- fallback (locale) -->
+            <argument index="7"></argument> <!-- default domain    -->
+            <argument index="8">86400</argument> <!-- http cache time -->
         </service>
     </services>
 </container>

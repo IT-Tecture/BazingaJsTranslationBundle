@@ -6,12 +6,14 @@
     <parameters>
         <parameter key="bazinga.jstranslation.translation_finder.class">Bazinga\Bundle\JsTranslationBundle\Finder\TranslationFinder</parameter>
         <parameter key="bazinga.jstranslation.translation_dumper.class">Bazinga\Bundle\JsTranslationBundle\Dumper\TranslationDumper</parameter>
+        <parameter key="bazinga.jstranslation.locale_request_filter.class">Bazinga\Bundle\JsTranslationBundle\Filter\DefaultLocaleRequestFilter</parameter>
     </parameters>
 
     <services>
         <service id="bazinga.jstranslation.translation_finder" class="%bazinga.jstranslation.translation_finder.class%">
             <argument type="service" id="kernel" />
         </service>
+        <service id="bazinga.jstranslation.locale_request_filter" class="%bazinga.jstranslation.locale_request_filter.class%" />
         <service id="bazinga.jstranslation.translation_dumper" class="%bazinga.jstranslation.translation_dumper.class%">
             <argument type="service" id="templating" />
             <argument type="service" id="bazinga.jstranslation.translation_finder" />

@@ -2,6 +2,7 @@
 
 namespace Bazinga\Bundle\JsTranslationBundle\Controller;
 
+use Bazinga\Bundle\JsTranslationBundle\Filter\LocaleRequestFilter;
 use Bazinga\Bundle\JsTranslationBundle\Finder\TranslationFinder;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Templating\EngineInterface;
@@ -33,6 +34,11 @@ class Controller
     private $translationFinder;
 
     /**
+     * @var LocaleRequestFilter
+     */
+    private $localeRequestFilter;
+
+    /**
      * @var array
      */
     private $loaders = array();
@@ -62,9 +68,10 @@ class Controller
     private $httpCacheTime;
 
     /**
-     * @param TranslatorInterface $translator        The translator.
-     * @param EngineInterface     $engine            The engine.
-     * @param TranslationFinder   $translationFinder The translation finder.
+     * @param TranslatorInterface $translator          The translator.
+     * @param EngineInterface     $engine              The engine.
+     * @param TranslationFinder   $translationFinder   The translation finder.
+     * @param LocaleRequestFilter $localeRequestFilter The filter used to get locales from requests
      * @param string              $cacheDir
      * @param boolean             $debug
      * @param string              $localeFallback
@@ -75,20 +82,22 @@ class Controller
         TranslatorInterface $translator,
         EngineInterface $engine,
         TranslationFinder $translationFinder,
+        LocaleRequestFilter $localeRequestFilter,
         $cacheDir,
-        $debug          = false,
-        $localeFallback = '',
-        $defaultDomain  = '',
-        $httpCacheTime  = 86400
+        $debug,
+        $localeFallback,
+        $defaultDomain,
+        $httpCacheTime
     ) {
-        $this->translator        = $translator;
-        $this->engine            = $engine;
-        $this->translationFinder = $translationFinder;
-        $this->cacheDir          = $cacheDir;
-        $this->debug             = $debug;
-        $this->localeFallback    = $localeFallback;
-        $this->defaultDomain     = $defaultDomain;
-        $this->httpCacheTime     = $httpCacheTime;
+        $this->translator          = $translator;
+        $this->engine              = $engine;
+        $this->translationFinder   = $translationFinder;
+        $this->localeRequestFilter = $localeRequestFilter;
+        $this->cacheDir            = $cacheDir;
+        $this->debug               = $debug;
+        $this->localeFallback      = $localeFallback;
+        $this->defaultDomain       = $defaultDomain;
+        $this->httpCacheTime       = $httpCacheTime;
     }
 
     /**
@@ -106,7 +115,7 @@ class Controller
 
     public function getTranslationsAction(Request $request, $domain, $_format)
     {
-        $locales = $this->getLocales($request);
+        $locales = $this->localeRequestFilter->filterLocalesFromRequest($request);
 
         if (0 === count($locales)) {
             throw new NotFoundHttpException();
@@ -178,24 +187,5 @@ class Controller
         $response->setExpires($expirationTime);
 
         return $response;
-    }
-
-    private function getLocales(Request $request)
-    {
-        if (null !== $locales = $request->query->get('locales')) {
-            $locales = explode(',', $locales);
-        } else {
-            $locales = array($request->getLocale());
-        }
-
-        $locales = array_filter($locales, function ($locale) {
-            return 1 === preg_match('/^[a-z]{2}([-_]{1}[a-zA-Z]{2})?$/', $locale);
-        });
-
-        $locales = array_unique(array_map(function ($locale) {
-            return trim($locale);
-        }, $locales));
-
-        return $locales;
     }
 }
